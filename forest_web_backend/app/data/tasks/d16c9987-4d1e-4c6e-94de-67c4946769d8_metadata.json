@@ -1,0 +1,16 @@
+{
+  "task_id": "d16c9987-4d1e-4c6e-94de-67c4946769d8",
+  "algorithm": "biomass_prediction",
+  "params": {
+    "input_path": "dataset://default",
+    "output_dir": "/data/biomass_results",
+    "feature_selection": true,
+    "test_size": 0.2,
+    "random_state": 42,
+    "target": "forest"
+  },
+  "status": "pending",
+  "create_time": "2026-03-13 20:25:16",
+  "result_path": "",
+  "storage_type": "LOCAL"
+}

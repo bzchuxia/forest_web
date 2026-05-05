@@ -1,0 +1,19 @@
+{
+  "task_id": "6f76e3cc-3209-4034-a807-03864d635c46",
+  "algorithm": "biomass_prediction",
+  "params": {
+    "input_path": "dataset://default",
+    "output_dir": "/data/biomass_results",
+    "test_size": 0.2,
+    "random_state": 42,
+    "feature_selection": true,
+    "target": "forest",
+    "raster_dir": null,
+    "timestamp": "20260319063017"
+  },
+  "status": "pending",
+  "create_time": "2026-03-19 14:30:18",
+  "result_path": "D:\\desktop\\forest_web\\forest_web_backend\\data\\task\\20260319_063017\\6f76e3cc-3209-4034-a807-03864d635c46_result.json",
+  "storage_type": "LOCAL",
+  "timestamp": "20260319063017"
+}

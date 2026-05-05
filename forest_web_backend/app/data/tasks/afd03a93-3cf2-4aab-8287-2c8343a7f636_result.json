@@ -1,0 +1,144 @@
+{
+  "status": "success",
+  "timestamp": "20260317_132733",
+  "best_model_name": "PowerSHAP_RF",
+  "best_r2": 0.8549816201709817,
+  "best_rmse": 28.08449643748048,
+  "feature_count": 45,
+  "train_samples": 448,
+  "test_samples": 113,
+  "best_model": "PowerSHAP_RF",
+  "model_metrics": {
+    "PowerSHAP_RF": {
+      "r2": 0.8549816201709817,
+      "rmse": 28.08449643748048,
+      "mae": 20.55617517935376,
+      "feature_count": 10
+    },
+    "BorutaSHAP_RF": {
+      "r2": 0.8039517457404625,
+      "rmse": 32.65401640293264,
+      "mae": 21.657794597464882,
+      "feature_count": 6
+    },
+    "Stacking_Ensemble": {
+      "r2": 0.8483518877858027,
+      "rmse": 28.719284842376602,
+      "mae": 19.765367887777366,
+      "feature_count": 45
+    },
+    "Baseline_RF": {
+      "r2": 0.7932889490454509,
+      "rmse": 33.530263345102775,
+      "mae": 24.662708966035666,
+      "feature_count": 45
+    }
+  },
+  "all_models": {
+    "PowerSHAP_RF": {
+      "model_path": "/data\\biomass_results\\20260317_132733\\PowerSHAP_RF_model_20260317_132733.joblib",
+      "feature_list_path": "/data\\biomass_results\\20260317_132733\\PowerSHAP_RF_feature_list_20260317_132733.joblib",
+      "r2": 0.8549816201709817,
+      "rmse": 28.08449643748048,
+      "feature_count": 10
+    },
+    "BorutaSHAP_RF": {
+      "model_path": "/data\\biomass_results\\20260317_132733\\BorutaSHAP_RF_model_20260317_132733.joblib",
+      "feature_list_path": "/data\\biomass_results\\20260317_132733\\BorutaSHAP_RF_feature_list_20260317_132733.joblib",
+      "r2": 0.8039517457404625,
+      "rmse": 32.65401640293264,
+      "feature_count": 6
+    },
+    "Stacking_Ensemble": {
+      "model_path": "/data\\biomass_results\\20260317_132733\\Stacking_Ensemble_model_20260317_132733.joblib",
+      "feature_list_path": "/data\\biomass_results\\20260317_132733\\Stacking_Ensemble_feature_list_20260317_132733.joblib",
+      "r2": 0.8483518877858027,
+      "rmse": 28.719284842376602,
+      "feature_count": 45
+    },
+    "Baseline_RF": {
+      "model_path": "/data\\biomass_results\\20260317_132733\\Baseline_RF_model_20260317_132733.joblib",
+      "feature_list_path": "/data\\biomass_results\\20260317_132733\\Baseline_RF_feature_list_20260317_132733.joblib",
+      "r2": 0.7932889490454509,
+      "rmse": 33.530263345102775,
+      "feature_count": 45
+    }
+  },
+  "best_model_info": {
+    "model_name": "PowerSHAP_RF",
+    "model_path": "/data\\biomass_results\\20260317_132733\\PowerSHAP_RF_model_20260317_132733.joblib",
+    "feature_list_path": "/data\\biomass_results\\20260317_132733\\PowerSHAP_RF_feature_list_20260317_132733.joblib",
+    "r2": 0.8549816201709817,
+    "rmse": 28.08449643748048,
+    "feature_count": 10
+  },
+  "output_files": {
+    "predictions_csv": "/data\\biomass_results\\20260317_132733\\所有模型预测结果_20260317_132733.csv",
+    "metrics_csv": "/data\\biomass_results\\20260317_132733\\模型评价指标汇总_20260317_132733.csv",
+    "best_model": "/data\\biomass_results\\20260317_132733\\PowerSHAP_RF_model_20260317_132733.joblib",
+    "comparison_plot": "/data\\biomass_results\\20260317_132733\\模型对比图_20260317_132733.png"
+  },
+  "task_id": "afd03a93-3cf2-4aab-8287-2c8343a7f636",
+  "all_models_spatial_results": {
+    "PowerSHAP_RF": {
+      "tif_path": "D:\\desktop\\forest_web\\forest_web_backend\\data\\空间生物量预测_20260317_132733.tif",
+      "png_path": "D:\\desktop\\forest_web\\forest_web_backend\\data\\Biomass_Prediction_20260317_132733_渲染图.png",
+      "geojson_path": "D:\\desktop\\forest_web\\forest_web_backend\\data\\Biomass_Prediction_20260317_132733.geojson",
+      "virtual_tif_path": "/data\\空间生物量预测_20260317_132733.tif",
+      "virtual_png_path": "/data\\Biomass_Prediction_20260317_132733_渲染图.png",
+      "virtual_geojson_path": "/data\\Biomass_Prediction_20260317_132733.geojson",
+      "hdfs_tif_path": "",
+      "hdfs_png_path": "",
+      "hdfs_geojson_path": "",
+      "timestamp": "20260317_132733"
+    },
+    "BorutaSHAP_RF": {
+      "tif_path": "D:\\desktop\\forest_web\\forest_web_backend\\data\\空间生物量预测_20260317_132733.tif",
+      "png_path": "D:\\desktop\\forest_web\\forest_web_backend\\data\\Biomass_Prediction_20260317_132733_渲染图.png",
+      "geojson_path": "D:\\desktop\\forest_web\\forest_web_backend\\data\\Biomass_Prediction_20260317_132733.geojson",
+      "virtual_tif_path": "/data\\空间生物量预测_20260317_132733.tif",
+      "virtual_png_path": "/data\\Biomass_Prediction_20260317_132733_渲染图.png",
+      "virtual_geojson_path": "/data\\Biomass_Prediction_20260317_132733.geojson",
+      "hdfs_tif_path": "",
+      "hdfs_png_path": "",
+      "hdfs_geojson_path": "",
+      "timestamp": "20260317_132733"
+    },
+    "Stacking_Ensemble": {
+      "tif_path": "D:\\desktop\\forest_web\\forest_web_backend\\data\\空间生物量预测_20260317_132733.tif",
+      "png_path": "D:\\desktop\\forest_web\\forest_web_backend\\data\\Biomass_Prediction_20260317_132733_渲染图.png",
+      "geojson_path": "D:\\desktop\\forest_web\\forest_web_backend\\data\\Biomass_Prediction_20260317_132733.geojson",
+      "virtual_tif_path": "/data\\空间生物量预测_20260317_132733.tif",
+      "virtual_png_path": "/data\\Biomass_Prediction_20260317_132733_渲染图.png",
+      "virtual_geojson_path": "/data\\Biomass_Prediction_20260317_132733.geojson",
+      "hdfs_tif_path": "",
+      "hdfs_png_path": "",
+      "hdfs_geojson_path": "",
+      "timestamp": "20260317_132733"
+    },
+    "Baseline_RF": {
+      "tif_path": "D:\\desktop\\forest_web\\forest_web_backend\\data\\空间生物量预测_20260317_132733.tif",
+      "png_path": "D:\\desktop\\forest_web\\forest_web_backend\\data\\Biomass_Prediction_20260317_132733_渲染图.png",
+      "geojson_path": "D:\\desktop\\forest_web\\forest_web_backend\\data\\Biomass_Prediction_20260317_132733.geojson",
+      "virtual_tif_path": "/data\\空间生物量预测_20260317_132733.tif",
+      "virtual_png_path": "/data\\Biomass_Prediction_20260317_132733_渲染图.png",
+      "virtual_geojson_path": "/data\\Biomass_Prediction_20260317_132733.geojson",
+      "hdfs_tif_path": "",
+      "hdfs_png_path": "",
+      "hdfs_geojson_path": "",
+      "timestamp": "20260317_132733"
+    }
+  },
+  "best_model_spatial_result": {
+    "tif_path": "D:\\desktop\\forest_web\\forest_web_backend\\data\\空间生物量预测_20260317_132733.tif",
+    "png_path": "D:\\desktop\\forest_web\\forest_web_backend\\data\\Biomass_Prediction_20260317_132733_渲染图.png",
+    "geojson_path": "D:\\desktop\\forest_web\\forest_web_backend\\data\\Biomass_Prediction_20260317_132733.geojson",
+    "virtual_tif_path": "/data\\空间生物量预测_20260317_132733.tif",
+    "virtual_png_path": "/data\\Biomass_Prediction_20260317_132733_渲染图.png",
+    "virtual_geojson_path": "/data\\Biomass_Prediction_20260317_132733.geojson",
+    "hdfs_tif_path": "",
+    "hdfs_png_path": "",
+    "hdfs_geojson_path": "",
+    "timestamp": "20260317_132733"
+  }
+}

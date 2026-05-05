@@ -1,0 +1,338 @@
+/* 全局根变量 & 基础样式 */
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 全局重置 & 基础布局 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: '微软雅黑', '思源黑体', sans-serif;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden; /* 禁用全局滚动，避免冲突 */
+}
+
+/* Vue应用容器 - 适配不同页面 */
+#app {
+  width: 100vw;
+  height: 100vh;
+  /* 欢迎页默认居中，数据页会被覆盖 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 链接样式 */
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+/* 基础body样式 - 兼容欢迎页居中 */
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+/* 标题样式 */
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+/* 按钮基础样式 */
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+/* 卡片基础样式 */
+.card {
+  padding: 2em;
+}
+
+/* 亮色模式适配 */
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
+
+/* -------------------------- 欢迎页专属样式 (HomePage) -------------------------- */
+/* 欢迎页容器 - 全屏居中核心 */
+.home-container {
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(135deg, #00122e 0%, #002554 100%);
+  color: #e2e8f0;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  justify-content: center; /* 水平居中 */
+  align-items: center;     /* 垂直居中 */
+}
+
+/* 欢迎页核心内容区 */
+.home-container .main-content {
+  max-width: 1200px;
+  width: 100%;
+  padding: 0 50px;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+/* -------------------------- 数据大屏样式 (核心保留你的自定义风格) -------------------------- */
+.data-dashboard {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 1200px;
+  max-height: 90vh;
+  background-color: rgba(15, 23, 42, 0.95); /* 深蓝灰半透明背景 */
+  border-radius: 16px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+  color: #e2e8f0; /* 浅灰色文字 */
+  z-index: 1000; /* 确保在Cesium之上 */
+  overflow-y: auto; /* 内容过多时滚动 */
+  font-family: 'Microsoft YaHei', sans-serif;
+  /* 关键修复：默认隐藏，优先级最高 */
+  display: none !important;
+}
+
+/* 大屏显示状态（仅在点击按钮后生效） */
+.data-dashboard.show {
+  display: block !important;
+}
+
+/* 大屏隐藏状态（冗余保护） */
+.data-dashboard.hidden {
+  display: none !important;
+}
+
+/* 大屏头部 */
+.dashboard-header {
+  padding: 20px 30px;
+  border-bottom: 1px solid #334155;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dashboard-header h2 {
+  margin: 0;
+  color: #06b6d4; /* 科技蓝标题 */
+  font-size: 24px;
+}
+
+/* 大屏关闭按钮 */
+.close-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 28px;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.close-btn:hover {
+  color: #ef4444; /* 悬停变红 */
+}
+
+/* 大屏内容区 */
+.dashboard-content {
+  padding: 20px 30px;
+}
+
+/* KPI指标区 */
+.kpi-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.kpi-card {
+  background-color: rgba(30, 41, 59, 0.7);
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  border: 1px solid #475569;
+}
+
+.kpi-label {
+  font-size: 16px;
+  color: #94a3b8;
+  margin-bottom: 8px;
+}
+
+.kpi-value {
+  font-size: 32px;
+  font-weight: bold;
+  color: #10b981; /* 生态绿数值 */
+}
+
+.unit {
+  font-size: 16px;
+  color: #94a3b8;
+  margin-left: 5px;
+}
+
+/* 图表区 */
+.charts-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 30px;
+  margin-bottom: 30px;
+}
+
+.chart-card {
+  background-color: rgba(30, 41, 59, 0.7);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #475569;
+}
+
+.chart-card h3 {
+  margin-top: 0;
+  color: #06b6d4;
+  font-size: 18px;
+  margin-bottom: 15px;
+}
+
+/* 生态价值区 */
+.value-section {
+  background-color: rgba(30, 41, 59, 0.7);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #475569;
+}
+
+.value-section h3 {
+  margin-top: 0;
+  color: #06b6d4;
+  font-size: 18px;
+  margin-bottom: 15px;
+}
+
+.value-section ul {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 10px;
+}
+
+.value-section li {
+  padding: 10px 15px;
+  background-color: rgba(51, 65, 85, 0.5);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.value-section li i {
+  color: #f59e0b; /* 强调色图标 */
+  margin-right: 10px;
+  font-size: 18px;
+}
+
+/* 打开大屏按钮样式 - 右上角固定定位 */
+.open-dashboard-btn {
+  position: fixed; /* 关键：使用固定定位 */
+  top: 20px;       /* 距离视口顶部 20px */
+  right: 20px;     /* 距离视口右侧 20px */
+  z-index: 1000;   /* 确保在其他内容之上 */
+  padding: 10px 20px;
+  background-color: #06b6d4; /* 科技蓝 */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  /* 默认隐藏，仅在数据页面显示 */
+  display: none !important;
+}
+
+.open-dashboard-btn:hover {
+  background-color: #0891b2; /* 悬停颜色 */
+}
+
+/* -------------------------- 样式隔离 & 页面适配 -------------------------- */
+/* 数据页面：显示大屏按钮 */
+.data-page .open-dashboard-btn {
+  display: block !important;
+}
+
+/* 数据页面：覆盖默认居中，适配Cesium */
+.data-page #app {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+  display: block; /* 取消居中，恢复默认流 */
+}
+
+/* 滚动条美化 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.05);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(79, 195, 247, 0.5);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(79, 195, 247, 0.8);
+}

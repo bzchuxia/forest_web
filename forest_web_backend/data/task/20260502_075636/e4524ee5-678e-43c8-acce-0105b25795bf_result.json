@@ -1,0 +1,101 @@
+{
+  "status": "success",
+  "timestamp": "20260502_075636",
+  "best_model_name": "XGBoost",
+  "best_r2": 0.4814412125274973,
+  "best_rmse": 47.34763501556804,
+  "best_mae": 37.98073186029682,
+  "feature_count": 43,
+  "train_samples": 149,
+  "test_samples": 38,
+  "data_cleaning_info": {
+    "original_count": 187,
+    "final_count": 187,
+    "removed_outliers": 0
+  },
+  "best_model": "XGBoost",
+  "model_metrics": [
+    {
+      "模型名称": "RandomForest",
+      "R²": 0.37975916792305875,
+      "RMSE": 51.782077317927104,
+      "MAE": 41.22497222567037,
+      "使用的特征数": 10,
+      "耗时 (s)": 0.0
+    },
+    {
+      "模型名称": "ExtraTrees",
+      "R²": 0.3496608101895008,
+      "RMSE": 53.02360541448568,
+      "MAE": 42.43450724235839,
+      "使用的特征数": 10,
+      "耗时 (s)": 0.0
+    },
+    {
+      "模型名称": "XGBoost",
+      "R²": 0.4814412125274973,
+      "RMSE": 47.34763501556804,
+      "MAE": 37.98073186029682,
+      "使用的特征数": 10,
+      "耗时 (s)": 0.0
+    },
+    {
+      "模型名称": "GBRT",
+      "R²": 0.4082679472449463,
+      "RMSE": 50.57802181043495,
+      "MAE": 39.40063798984562,
+      "使用的特征数": 10,
+      "耗时 (s)": 0.0
+    }
+  ],
+  "all_models": {
+    "RandomForest": {
+      "model_path": "/data\\biomass_results\\20260502_075636\\RandomForest_model_20260502_075636.joblib",
+      "feature_list_path": "/data\\biomass_results\\20260502_075636\\RandomForest_feature_list_20260502_075636.joblib",
+      "r2": 0.37975916792305875,
+      "rmse": 51.782077317927104
+    },
+    "ExtraTrees": {
+      "model_path": "/data\\biomass_results\\20260502_075636\\ExtraTrees_model_20260502_075636.joblib",
+      "feature_list_path": "/data\\biomass_results\\20260502_075636\\ExtraTrees_feature_list_20260502_075636.joblib",
+      "r2": 0.3496608101895008,
+      "rmse": 53.02360541448568
+    },
+    "XGBoost": {
+      "model_path": "/data\\biomass_results\\20260502_075636\\XGBoost_model_20260502_075636.joblib",
+      "feature_list_path": "/data\\biomass_results\\20260502_075636\\XGBoost_feature_list_20260502_075636.joblib",
+      "r2": 0.4814412125274973,
+      "rmse": 47.34763501556804
+    },
+    "GBRT": {
+      "model_path": "/data\\biomass_results\\20260502_075636\\GBRT_model_20260502_075636.joblib",
+      "feature_list_path": "/data\\biomass_results\\20260502_075636\\GBRT_feature_list_20260502_075636.joblib",
+      "r2": 0.4082679472449463,
+      "rmse": 50.57802181043495
+    }
+  },
+  "best_model_info": {
+    "model_name": "XGBoost",
+    "model_path": "/data\\biomass_results\\20260502_075636\\XGBoost_model_20260502_075636.joblib",
+    "feature_list_path": "/data\\biomass_results\\20260502_075636\\XGBoost_feature_list_20260502_075636.joblib",
+    "r2": 0.4814412125274973,
+    "rmse": 47.34763501556804,
+    "feature_count": 10
+  },
+  "output_files": {
+    "predictions_csv": "/data\\biomass_results\\20260502_075636\\所有模型预测结果_20260502_075636.csv",
+    "metrics_csv": "/data\\biomass_results\\20260502_075636\\模型评价指标汇总_20260502_075636.csv",
+    "best_model": "/data\\biomass_results\\20260502_075636\\XGBoost_model_20260502_075636.joblib",
+    "comparison_plot": "/data\\biomass_results\\20260502_075636\\详细分析图_20260502_075636.png"
+  },
+  "statistics": {
+    "feature_count": 43,
+    "train_samples": 149,
+    "test_samples": 38,
+    "min_biomass": 30.3452359598,
+    "max_biomass": 315.941095036,
+    "avg_biomass": 154.3465038425816
+  },
+  "train_time": 35.27891230583191,
+  "task_id": "e4524ee5-678e-43c8-acce-0105b25795bf"
+}

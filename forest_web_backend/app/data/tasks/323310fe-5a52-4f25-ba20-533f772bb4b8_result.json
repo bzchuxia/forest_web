@@ -1,0 +1,206 @@
+{
+  "status": "success",
+  "timestamp": "20260315_113959",
+  "feature_names": [
+    "jindu",
+    "weidu",
+    "SWIR1",
+    "SWIR2",
+    "TIR",
+    "VV_VH",
+    "ARVI",
+    "Blue",
+    "DVI",
+    "EVI",
+    "GNDVI",
+    "Green",
+    "MeanVH",
+    "MeanVV",
+    "MNDVI",
+    "NDVI",
+    "NDWI",
+    "NIR",
+    "Radar",
+    "Red",
+    "SAVI",
+    "Aspect",
+    "Slope",
+    "BIO1",
+    "BIO2",
+    "BIO3",
+    "BIO4",
+    "BIO5",
+    "BIO6",
+    "BIO7",
+    "BIO8",
+    "BIO9",
+    "BIO10",
+    "BIO11",
+    "BIO12",
+    "BIO13",
+    "BIO14",
+    "BIO15",
+    "BIO16",
+    "BIO17",
+    "BIO18",
+    "BIO19",
+    "DEM",
+    "RDVI",
+    "RVI",
+    "GDVI"
+  ],
+  "feature_count": 46,
+  "train_samples": 149,
+  "test_samples": 38,
+  "model_metrics": [
+    {
+      "模型名称": "RandomForest",
+      "最佳n_estimators": "100",
+      "使用的特征数": 46,
+      "特征列表": "jindu, weidu, SWIR1, SWIR2, TIR, VV_VH, ARVI, Blue, DVI, EVI, GNDVI, Green, MeanVH, MeanVV, MNDVI, NDVI, NDWI, NIR, Radar, Red, SAVI, Aspect, Slope, BIO1, BIO2, BIO3, BIO4, BIO5, BIO6, BIO7, BIO8, BIO9, BIO10, BIO11, BIO12, BIO13, BIO14, BIO15, BIO16, BIO17, BIO18, BIO19, DEM, RDVI, RVI, GDVI",
+      "R²": 0.11474925411230774,
+      "RMSE": 69.84564992143797,
+      "MAE": 55.54469917851337,
+      "训练时间(s)": 0.21114897727966309
+    },
+    {
+      "模型名称": "XGBoost",
+      "最佳n_estimators": "100",
+      "使用的特征数": 46,
+      "特征列表": "jindu, weidu, SWIR1, SWIR2, TIR, VV_VH, ARVI, Blue, DVI, EVI, GNDVI, Green, MeanVH, MeanVV, MNDVI, NDVI, NDWI, NIR, Radar, Red, SAVI, Aspect, Slope, BIO1, BIO2, BIO3, BIO4, BIO5, BIO6, BIO7, BIO8, BIO9, BIO10, BIO11, BIO12, BIO13, BIO14, BIO15, BIO16, BIO17, BIO18, BIO19, DEM, RDVI, RVI, GDVI",
+      "R²": 0.15389239425411483,
+      "RMSE": 68.2840091205022,
+      "MAE": 51.8631124649935,
+      "训练时间(s)": 0.29128026962280273
+    },
+    {
+      "模型名称": "CatBoost",
+      "最佳n_estimators": "1000",
+      "使用的特征数": 46,
+      "特征列表": "jindu, weidu, SWIR1, SWIR2, TIR, VV_VH, ARVI, Blue, DVI, EVI, GNDVI, Green, MeanVH, MeanVV, MNDVI, NDVI, NDWI, NIR, Radar, Red, SAVI, Aspect, Slope, BIO1, BIO2, BIO3, BIO4, BIO5, BIO6, BIO7, BIO8, BIO9, BIO10, BIO11, BIO12, BIO13, BIO14, BIO15, BIO16, BIO17, BIO18, BIO19, DEM, RDVI, RVI, GDVI",
+      "R²": 0.11868593083205858,
+      "RMSE": 69.69017639555636,
+      "MAE": 54.95118792610515,
+      "训练时间(s)": 1.6532843112945557
+    },
+    {
+      "模型名称": "GradientBoosting",
+      "最佳n_estimators": "100",
+      "使用的特征数": 46,
+      "特征列表": "jindu, weidu, SWIR1, SWIR2, TIR, VV_VH, ARVI, Blue, DVI, EVI, GNDVI, Green, MeanVH, MeanVV, MNDVI, NDVI, NDWI, NIR, Radar, Red, SAVI, Aspect, Slope, BIO1, BIO2, BIO3, BIO4, BIO5, BIO6, BIO7, BIO8, BIO9, BIO10, BIO11, BIO12, BIO13, BIO14, BIO15, BIO16, BIO17, BIO18, BIO19, DEM, RDVI, RVI, GDVI",
+      "R²": 0.009748586685122351,
+      "RMSE": 73.871845286436,
+      "MAE": 57.239341527498766,
+      "训练时间(s)": 0.13165044784545898
+    },
+    {
+      "模型名称": "ExtraTrees",
+      "最佳n_estimators": "100",
+      "使用的特征数": 46,
+      "特征列表": "jindu, weidu, SWIR1, SWIR2, TIR, VV_VH, ARVI, Blue, DVI, EVI, GNDVI, Green, MeanVH, MeanVV, MNDVI, NDVI, NDWI, NIR, Radar, Red, SAVI, Aspect, Slope, BIO1, BIO2, BIO3, BIO4, BIO5, BIO6, BIO7, BIO8, BIO9, BIO10, BIO11, BIO12, BIO13, BIO14, BIO15, BIO16, BIO17, BIO18, BIO19, DEM, RDVI, RVI, GDVI",
+      "R²": 0.22818946384850503,
+      "RMSE": 65.2171120828743,
+      "MAE": 52.66713890356515,
+      "训练时间(s)": 0.15923047065734863
+    },
+    {
+      "模型名称": "LinearRegression",
+      "最佳n_estimators": "无",
+      "使用的特征数": 46,
+      "特征列表": "jindu, weidu, SWIR1, SWIR2, TIR, VV_VH, ARVI, Blue, DVI, EVI, GNDVI, Green, MeanVH, MeanVV, MNDVI, NDVI, NDWI, NIR, Radar, Red, SAVI, Aspect, Slope, BIO1, BIO2, BIO3, BIO4, BIO5, BIO6, BIO7, BIO8, BIO9, BIO10, BIO11, BIO12, BIO13, BIO14, BIO15, BIO16, BIO17, BIO18, BIO19, DEM, RDVI, RVI, GDVI",
+      "R²": 0.17386948870874286,
+      "RMSE": 67.4730812513885,
+      "MAE": 55.2082564922428,
+      "训练时间(s)": 0.01071619987487793
+    }
+  ],
+  "output_files": {
+    "rmse_plot": "/data/biomass_results_20260315_113959\\RMSE比较_20260315_113959.png",
+    "fit_plots": {
+      "RandomForest": "/data/biomass_results_20260315_113959\\RandomForest_拟合图_20260315_113959.png",
+      "XGBoost": "/data/biomass_results_20260315_113959\\XGBoost_拟合图_20260315_113959.png",
+      "CatBoost": "/data/biomass_results_20260315_113959\\CatBoost_拟合图_20260315_113959.png",
+      "GradientBoosting": "/data/biomass_results_20260315_113959\\GradientBoosting_拟合图_20260315_113959.png",
+      "ExtraTrees": "/data/biomass_results_20260315_113959\\ExtraTrees_拟合图_20260315_113959.png",
+      "LinearRegression": "/data/biomass_results_20260315_113959\\LinearRegression_拟合图_20260315_113959.png"
+    },
+    "predictions_csv": "/data/biomass_results_20260315_113959\\模型预测结果_20260315_113959.csv",
+    "metrics_csv": "/data/biomass_results_20260315_113959\\模型评价指标_20260315_113959.csv",
+    "model_files": {
+      "RandomForest": {
+        "model_path": "/data/biomass_results_20260315_113959\\RandomForest_model_20260315_113959.joblib",
+        "feature_list_path": "/data/biomass_results_20260315_113959\\RandomForest_feature_list_20260315_113959.joblib",
+        "hdfs_model_path": "",
+        "hdfs_feature_list_path": "",
+        "timestamp": "20260315_113959"
+      },
+      "XGBoost": {
+        "model_path": "/data/biomass_results_20260315_113959\\XGBoost_model_20260315_113959.joblib",
+        "feature_list_path": "/data/biomass_results_20260315_113959\\XGBoost_feature_list_20260315_113959.joblib",
+        "hdfs_model_path": "",
+        "hdfs_feature_list_path": "",
+        "timestamp": "20260315_113959"
+      },
+      "CatBoost": {
+        "model_path": "/data/biomass_results_20260315_113959\\CatBoost_model_20260315_113959.joblib",
+        "feature_list_path": "/data/biomass_results_20260315_113959\\CatBoost_feature_list_20260315_113959.joblib",
+        "hdfs_model_path": "",
+        "hdfs_feature_list_path": "",
+        "timestamp": "20260315_113959"
+      },
+      "GradientBoosting": {
+        "model_path": "/data/biomass_results_20260315_113959\\GradientBoosting_model_20260315_113959.joblib",
+        "feature_list_path": "/data/biomass_results_20260315_113959\\GradientBoosting_feature_list_20260315_113959.joblib",
+        "hdfs_model_path": "",
+        "hdfs_feature_list_path": "",
+        "timestamp": "20260315_113959"
+      },
+      "ExtraTrees": {
+        "model_path": "/data/biomass_results_20260315_113959\\ExtraTrees_model_20260315_113959.joblib",
+        "feature_list_path": "/data/biomass_results_20260315_113959\\ExtraTrees_feature_list_20260315_113959.joblib",
+        "hdfs_model_path": "",
+        "hdfs_feature_list_path": "",
+        "timestamp": "20260315_113959"
+      },
+      "LinearRegression": {
+        "model_path": "/data/biomass_results_20260315_113959\\LinearRegression_model_20260315_113959.joblib",
+        "feature_list_path": "/data/biomass_results_20260315_113959\\LinearRegression_feature_list_20260315_113959.joblib",
+        "hdfs_model_path": "",
+        "hdfs_feature_list_path": "",
+        "timestamp": "20260315_113959"
+      }
+    },
+    "feature_file": "/data/biomass_results_20260315_113959\\feature_names_20260315_113959.joblib",
+    "shap_plot": "/data/biomass_results_20260315_113959\\SHAP特征重要性_20260315_113959.png",
+    "heatmap_plot": "/data/biomass_results_20260315_113959\\生物量热点图_20260315_113959.png",
+    "corr_heatmap_plot": "/data/biomass_results_20260315_113959\\特征相关性热力图_20260315_113959.png",
+    "hdfs_enabled": false,
+    "hdfs_root": ""
+  },
+  "best_model": "ExtraTrees",
+  "statistics": {
+    "total_area": 27720,
+    "total_biomass": 4.2,
+    "distribution": {
+      "帽儿山核心区": 15000,
+      "帽儿山东区": 8000,
+      "帽儿山西区": 4720
+    },
+    "time_series": {
+      "2014": 24000,
+      "2016": 25000,
+      "2018": 25800,
+      "2020": 26800,
+      "2022": 27400,
+      "2023": 27720
+    }
+  },
+  "spatial_prediction": {
+    "model_used": "ExtraTrees",
+    "error": "❌ 空间预测系统失败：❌ 文件不存在：D:\\desktop\\forest_web\\forest_web_backend\\data\\biomass_results_20260315_113959\\ExtraTrees_model_20260315_113959.joblib（HDFS 和本地均未找到）",
+    "status": "failed",
+    "timestamp": "20260315_113959"
+  },
+  "task_id": "323310fe-5a52-4f25-ba20-533f772bb4b8",
+  "spatial_prediction_error": "❌ 任务 323310fe-5a52-4f25-ba20-533f772bb4b8 缺少空间预测必要参数（model_path/feature_list_path）"
+}

@@ -1,0 +1,102 @@
+{
+  "status": "success",
+  "timestamp": "20260317_131026",
+  "best_model_name": "",
+  "best_r2": 0.8549816201709817,
+  "best_rmse": 28.084496437480478,
+  "feature_count": 45,
+  "train_samples": 448,
+  "test_samples": 113,
+  "best_model": "PowerSHAP_RF",
+  "model_metrics": {
+    "PowerSHAP_RF": {
+      "r2": 0.8549816201709817,
+      "rmse": 28.084496437480478,
+      "mae": 20.55617517935376,
+      "feature_count": 10
+    },
+    "BorutaSHAP_RF": {
+      "r2": 0.8039517457404625,
+      "rmse": 32.65401640293264,
+      "mae": 21.65779459746488,
+      "feature_count": 6
+    },
+    "Stacking_Ensemble": {
+      "r2": 0.8483518877858027,
+      "rmse": 28.719284842376602,
+      "mae": 19.765367887777366,
+      "feature_count": 45
+    },
+    "Baseline_RF": {
+      "r2": 0.7932889490454509,
+      "rmse": 33.530263345102775,
+      "mae": 24.66270896603567,
+      "feature_count": 45
+    }
+  },
+  "all_models": {
+    "PowerSHAP_RF": {
+      "model_path": "/data\\biomass_results\\20260317_131026\\PowerSHAP_RF_model_20260317_131026.joblib",
+      "feature_list_path": "/data\\biomass_results\\20260317_131026\\PowerSHAP_RF_feature_list_20260317_131026.joblib",
+      "r2": 0.8549816201709817,
+      "rmse": 28.084496437480478,
+      "feature_count": 10
+    },
+    "BorutaSHAP_RF": {
+      "model_path": "/data\\biomass_results\\20260317_131026\\BorutaSHAP_RF_model_20260317_131026.joblib",
+      "feature_list_path": "/data\\biomass_results\\20260317_131026\\BorutaSHAP_RF_feature_list_20260317_131026.joblib",
+      "r2": 0.8039517457404625,
+      "rmse": 32.65401640293264,
+      "feature_count": 6
+    },
+    "Stacking_Ensemble": {
+      "model_path": "/data\\biomass_results\\20260317_131026\\Stacking_Ensemble_model_20260317_131026.joblib",
+      "feature_list_path": "/data\\biomass_results\\20260317_131026\\Stacking_Ensemble_feature_list_20260317_131026.joblib",
+      "r2": 0.8483518877858027,
+      "rmse": 28.719284842376602,
+      "feature_count": 45
+    },
+    "Baseline_RF": {
+      "model_path": "/data\\biomass_results\\20260317_131026\\Baseline_RF_model_20260317_131026.joblib",
+      "feature_list_path": "/data\\biomass_results\\20260317_131026\\Baseline_RF_feature_list_20260317_131026.joblib",
+      "r2": 0.7932889490454509,
+      "rmse": 33.530263345102775,
+      "feature_count": 45
+    }
+  },
+  "best_model_info": {
+    "model_name": "PowerSHAP_RF",
+    "model_path": "/data\\biomass_results\\20260317_131026\\PowerSHAP_RF_model_20260317_131026.joblib",
+    "feature_list_path": "/data\\biomass_results\\20260317_131026\\PowerSHAP_RF_feature_list_20260317_131026.joblib",
+    "r2": 0.8549816201709817,
+    "rmse": 28.084496437480478,
+    "feature_count": 10
+  },
+  "output_files": {
+    "predictions_csv": "/data\\biomass_results\\20260317_131026\\所有模型预测结果_20260317_131026.csv",
+    "metrics_csv": "/data\\biomass_results\\20260317_131026\\模型评价指标汇总_20260317_131026.csv",
+    "best_model": "/data\\biomass_results\\20260317_131026\\PowerSHAP_RF_model_20260317_131026.joblib",
+    "comparison_plot": "/data\\biomass_results\\20260317_131026\\模型对比图_20260317_131026.png"
+  },
+  "task_id": "adfab390-195c-4a07-bf2c-7f87a8b7a276",
+  "spatial_prediction_error": "❌ 无有效空间预测结果的模型",
+  "all_models_spatial_results": {
+    "PowerSHAP_RF": {
+      "error": "❌ 空间预测系统失败：❌ 文件不存在：D:\\desktop\\forest_web\\forest_web_backend\\data\\raster（HDFS 和本地均未找到）\n   已检查路径：['D:\\\\desktop\\\\forest_web\\\\forest_web_backend\\\\data\\\\raster', 'D:\\\\desktop\\\\forest_web\\\\forest_web_backend\\\\data\\\\raster', 'D:\\\\desktop\\\\forest_web\\\\forest_web_backend\\\\data\\\\raster']",
+      "status": "failed"
+    },
+    "BorutaSHAP_RF": {
+      "error": "❌ 空间预测系统失败：❌ 文件不存在：D:\\desktop\\forest_web\\forest_web_backend\\data\\raster（HDFS 和本地均未找到）\n   已检查路径：['D:\\\\desktop\\\\forest_web\\\\forest_web_backend\\\\data\\\\raster', 'D:\\\\desktop\\\\forest_web\\\\forest_web_backend\\\\data\\\\raster', 'D:\\\\desktop\\\\forest_web\\\\forest_web_backend\\\\data\\\\raster']",
+      "status": "failed"
+    },
+    "Stacking_Ensemble": {
+      "error": "❌ 空间预测系统失败：❌ 文件不存在：D:\\desktop\\forest_web\\forest_web_backend\\data\\raster（HDFS 和本地均未找到）\n   已检查路径：['D:\\\\desktop\\\\forest_web\\\\forest_web_backend\\\\data\\\\raster', 'D:\\\\desktop\\\\forest_web\\\\forest_web_backend\\\\data\\\\raster', 'D:\\\\desktop\\\\forest_web\\\\forest_web_backend\\\\data\\\\raster']",
+      "status": "failed"
+    },
+    "Baseline_RF": {
+      "error": "❌ 空间预测系统失败：❌ 文件不存在：D:\\desktop\\forest_web\\forest_web_backend\\data\\raster（HDFS 和本地均未找到）\n   已检查路径：['D:\\\\desktop\\\\forest_web\\\\forest_web_backend\\\\data\\\\raster', 'D:\\\\desktop\\\\forest_web\\\\forest_web_backend\\\\data\\\\raster', 'D:\\\\desktop\\\\forest_web\\\\forest_web_backend\\\\data\\\\raster']",
+      "status": "failed"
+    }
+  },
+  "best_model_spatial_result": {}
+}

@@ -1,0 +1,15 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ],
+  "compilerOptions": {
+    // 其他配置不变
+    "typeRoots": [
+      "./node_modules/@types",
+      "./src/types" // 新增：识别自定义类型文件
+    ],
+    "types": ["cesium", "cesium-draw"] // 显式引入类型
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "task_id": "7a11a0bf-0622-475d-b0be-33f116141f18",
+  "algorithm": "biomass_prediction",
+  "params": {
+    "input_path": "dataset://maoershan_2nd_survey",
+    "output_dir": "/data/biomass_results",
+    "feature_selection": true,
+    "test_size": 0.2,
+    "random_state": 42,
+    "target": "forest"
+  },
+  "status": "pending",
+  "create_time": "2026-03-13 16:06:00",
+  "result_path": "",
+  "storage_type": "LOCAL"
+}

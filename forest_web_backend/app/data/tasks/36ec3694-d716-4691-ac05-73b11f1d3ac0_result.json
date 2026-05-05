@@ -1,0 +1,91 @@
+{
+  "status": "success",
+  "timestamp": "20260317_093502",
+  "best_model_name": "PowerSHAP_RF",
+  "best_r2": 0.8549816201709817,
+  "best_rmse": 28.08449643748048,
+  "feature_count": 45,
+  "train_samples": 448,
+  "test_samples": 113,
+  "best_model": "PowerSHAP_RF",
+  "model_metrics": [
+    {
+      "模型名称": "PowerSHAP_RF",
+      "R²": 0.8549816201709817,
+      "RMSE": 28.08449643748048,
+      "MAE": 20.55617517935376,
+      "训练时间(s)": 0.0,
+      "feature_count": 10
+    },
+    {
+      "模型名称": "BorutaSHAP_RF",
+      "R²": 0.8039517457404625,
+      "RMSE": 32.65401640293264,
+      "MAE": 21.65779459746488,
+      "训练时间(s)": 0.0,
+      "feature_count": 6
+    },
+    {
+      "模型名称": "Stacking_Ensemble",
+      "R²": 0.8483518877858027,
+      "RMSE": 28.719284842376602,
+      "MAE": 19.765367887777366,
+      "训练时间(s)": 0.0,
+      "feature_count": 45
+    },
+    {
+      "模型名称": "Baseline_RF",
+      "R²": 0.7932889490454509,
+      "RMSE": 33.530263345102775,
+      "MAE": 24.662708966035666,
+      "训练时间(s)": 0.0,
+      "feature_count": 45
+    }
+  ],
+  "all_models": {
+    "PowerSHAP_RF": {
+      "model_path": "/data/biomass_results_20260317_093502\\PowerSHAP_RF_模型_20260317_093502.joblib",
+      "feature_list_path": "/data/biomass_results_20260317_093502\\PowerSHAP_RF_特征列表_20260317_093502.joblib",
+      "r2": 0.8549816201709817,
+      "rmse": 28.08449643748048,
+      "feature_count": 10
+    },
+    "BorutaSHAP_RF": {
+      "model_path": "/data/biomass_results_20260317_093502\\BorutaSHAP_RF_模型_20260317_093502.joblib",
+      "feature_list_path": "/data/biomass_results_20260317_093502\\BorutaSHAP_RF_特征列表_20260317_093502.joblib",
+      "r2": 0.8039517457404625,
+      "rmse": 32.65401640293264,
+      "feature_count": 6
+    },
+    "Stacking_Ensemble": {
+      "model_path": "/data/biomass_results_20260317_093502\\Stacking_Ensemble_模型_20260317_093502.joblib",
+      "feature_list_path": "/data/biomass_results_20260317_093502\\Stacking_Ensemble_特征列表_20260317_093502.joblib",
+      "r2": 0.8483518877858027,
+      "rmse": 28.719284842376602,
+      "feature_count": 45
+    },
+    "Baseline_RF": {
+      "model_path": "/data/biomass_results_20260317_093502\\Baseline_RF_模型_20260317_093502.joblib",
+      "feature_list_path": "/data/biomass_results_20260317_093502\\Baseline_RF_特征列表_20260317_093502.joblib",
+      "r2": 0.7932889490454509,
+      "rmse": 33.530263345102775,
+      "feature_count": 45
+    }
+  },
+  "best_model_info": {
+    "model_name": "PowerSHAP_RF",
+    "model_path": "/data/biomass_results_20260317_093502\\PowerSHAP_RF_模型_20260317_093502.joblib",
+    "feature_list_path": "/data/biomass_results_20260317_093502\\PowerSHAP_RF_特征列表_20260317_093502.joblib",
+    "r2": 0.8549816201709817,
+    "rmse": 28.08449643748048,
+    "feature_count": 10
+  },
+  "output_files": {
+    "predictions_csv": "/data/biomass_results_20260317_093502\\所有模型预测结果_20260317_093502.csv",
+    "metrics_csv": "/data/biomass_results_20260317_093502\\模型评价指标汇总_20260317_093502.csv",
+    "best_model": "/data/biomass_results_20260317_093502\\PowerSHAP_RF_模型_20260317_093502.joblib",
+    "comparison_plot": "/data/biomass_results_20260317_093502\\模型对比图_20260317_093502.png"
+  },
+  "task_id": "36ec3694-d716-4691-ac05-73b11f1d3ac0",
+  "spatial_prediction_error": "❌ 任务 36ec3694-d716-4691-ac05-73b11f1d3ac0 空间预测异常：'list' object has no attribute 'items'"
+}

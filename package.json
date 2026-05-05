@@ -1,0 +1,89 @@
+{
+  "name": "forest_web",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vue-tsc -b && vite build",
+    "build:report": "vue-tsc -b && vite build --report",
+    "preview": "vite preview --host 0.0.0.0",
+    "lint": "eslint . --ext .vue,.ts,.js --fix",
+    "clean": "rimraf dist node_modules/.pnpm-debug.log",
+    "prepare": "husky install"
+  },
+  "dependencies": {
+    "@tmcw/togeojson": "^7.1.2",
+    "@turf/turf": "^7.3.4",
+    "@types/papaparse": "^5.5.2",
+    "axios": "^1.7.7",
+    "cesium": "^1.137.0",
+    "cesium-draw": "^4.1.0",
+    "echarts": "^5.4.3",
+    "echarts-gl": "^2.0.9",
+    "element-plus": "^2.13.2",
+    "geotiff": "^3.0.4",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^4.2.0",
+    "jspdf-autotable": "^5.0.7",
+    "jwt-decode": "^4.0.0",
+    "marked": "^18.0.3",
+    "papaparse": "^5.5.3",
+    "pinia": "^3.0.4",
+    "pinia-plugin-persistedstate": "^4.7.1",
+    "proj4": "^2.20.3",
+    "shpjs": "^6.2.0",
+    "vite-plugin-cesium": "^1.2.23",
+    "vue": "^3.5.24",
+    "vue-echarts": "^8.0.1",
+    "vue-router": "^4.6.4",
+    "xlsx": "^0.18.5",
+    "xmldom": "^0.6.0"
+  },
+  "devDependencies": {
+    "@element-plus/icons-vue": "^2.3.2",
+    "@types/axios": "^0.14.4",
+    "@types/html2canvas": "^1.0.0",
+    "@types/jspdf": "^2.0.0",
+    "@types/jwt-decode": "^3.1.0",
+    "@types/node": "^22.7.5",
+    "@types/shpjs": "^3.4.7",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "@vue/eslint-config-typescript": "^13.0.0",
+    "@vue/tsconfig": "^0.8.1",
+    "eslint": "^9.12.0",
+    "eslint-plugin-vue": "^9.28.0",
+    "husky": "^9.1.6",
+    "rimraf": "^6.0.1",
+    "typescript": "~5.9.3",
+    "vite": "^5.4.8",
+    "vue-tsc": "^3.1.4"
+  },
+  "pnpm": {
+    "peerDependencyRules": {
+      "ignoreMissing": [
+        "vue",
+        "cesium"
+      ]
+    },
+    "overrides": {
+      "echarts": "^5.4.3",
+      "vite": "^5.4.8"
+    },
+    "patchedDependencies": {}
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not IE 11"
+  ],
+  "vueCompilerOptions": {
+    "strictTemplates": false,
+    "skipTemplateCodegen": false
+  }
+}
