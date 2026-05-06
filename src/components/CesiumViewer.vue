@@ -9,7 +9,6 @@ import { onMounted, ref, reactive, onUnmounted ,nextTick} from 'vue'
 import { getBiomassHeatmap, getMangroveBoundary, getSamplePoints } from '../api/biomass'
 import 'cesium/Build/Cesium/Widgets/widgets.css';
 import { ElMessage } from 'element-plus'
-import { getBiomassHeatmapApi } from '../utils/taskService'
 
 // 定义投影：EPSG:32651 (UTM 51N) 转 EPSG:4326 (WGS84)
 const utm51n = '+proj=utm +zone=51 +datum=WGS84 +units=m +no_defs'
@@ -36,7 +35,6 @@ let isMounted = false
 
 // 新增：自己定义容器显隐状态
 const isVisible = ref(true) // 确保默认显示
-
 const selectedYear = ref(2023)
 const selectedRegion = ref("full")
 
@@ -51,8 +49,6 @@ const layerStates = reactive({
 // 图层引用
 // 🌟 核心修复：重新定义 layers 变量，严格限定类型
 const layers = reactive({
-  // 热力图：只允许是 Cesium.GeoJsonDataSource 或 null
-  biomassHeatmap: null as Cesium.GeoJsonDataSource | null,
   // 预测热力图：ImageryLayer
   predictedBiomassHeatmap: null as Cesium.ImageryLayer | null,
   // 边界：GeoJsonDataSource
@@ -73,117 +69,237 @@ const targetOrientation = {
   roll: 0
 }
 
-//加载基础热力图
-const loadBiomassHeatmap = async () => {
-  if (!viewer) return;
-  
-  // 1. 避免重复加载（和帽儿山逻辑一致）
-  if (layers.biomassHeatmap) {
-    console.log('✅ 生物量热力图已存在，无需重复加载');
-    return;
+// 3D热力图生成
+interface HeatmapPoint {
+  lng: number
+  lat: number
+  value: number
+}
+// 记录热力图Primitive，方便后续移除
+let heatmapPrimitive: Cesium.Primitive | null = null
+
+/**
+ * 生成 Canvas 热力图（修复所有 TS 错误）
+ * @param points 经纬度+数值的点数据
+ * @param width 画布宽度
+ * @param height 画布高度
+ * @returns canvas 元素
+ */
+const createHeatmapCanvas = (
+  points: HeatmapPoint[],
+  width: number = 512,
+  height: number = 512
+): HTMLCanvasElement => {
+  const canvas = document.createElement('canvas')
+  canvas.width = width
+  canvas.height = height
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return canvas
+
+  // 1. 计算数据范围（经纬度）
+  const lngs = points.map(p => p.lng)
+  const lats = points.map(p => p.lat)
+  const values = points.map(p => p.value)
+  const minLng = Math.min(...lngs)
+  const maxLng = Math.max(...lngs)
+  const minLat = Math.min(...lats)
+  const maxLat = Math.max(...lats)
+  const minVal = Math.min(...values)
+  const maxVal = Math.max(...values)
+
+  // 2. 先画点（高斯模糊扩散）
+  points.forEach(point => {
+    // 坐标转成画布像素
+    const x = ((point.lng - minLng) / (maxLng - minLng)) * width
+    const y = ((maxLat - point.lat) / (maxLat - minLat)) * height
+    const radius = 40 // 点的扩散半径（越大越模糊）
+    const alpha = ((point.value - minVal) / (maxVal - minVal)) * 0.8 + 0.2 // 透明度和数值挂钩
+
+    // 画圆（模拟热力扩散）
+    const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius)
+    gradient.addColorStop(0, `rgba(255, 255, 255, ${alpha})`)
+    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)')
+    ctx.fillStyle = gradient
+    ctx.beginPath()
+    ctx.arc(x, y, radius, 0, Math.PI * 2)
+    ctx.fill()
+  })
+
+  // 3. 应用颜色映射（渐变，和你生物量配色一致）
+  const imageData = ctx.getImageData(0, 0, width, height)
+  const data = imageData.data
+
+  // 生成颜色表（和你现有生物量渐变保持一致：绿→蓝→紫→红）
+  const colorStops = [
+    { offset: 0, color: [34, 197, 94] as const },   // 低：绿色
+    { offset: 0.4, color: [59, 130, 246] as const }, // 中低：蓝色
+    { offset: 0.7, color: [168, 85, 247] as const }, // 中高：紫色
+    { offset: 1, color: [239, 68, 68] as const }     // 高：红色
+  ]
+
+  // 遍历像素，把灰度值映射成颜色
+  for (let i = 0; i < data.length; i += 4) {
+    const gray = data[i] // 灰度值（0-255）
+    if (gray === 0 || gray === undefined) continue // 透明背景不处理
+
+    // 计算颜色插值
+    const t = gray / 255
+    let color = [255, 255, 255] as [number, number, number]
+    for (let j = 0; j < colorStops.length - 1; j++) {
+      const stop1 = colorStops[j]
+      const stop2 = colorStops[j + 1]
+      if (stop1 && stop2 && t >= stop1.offset && t <= stop2.offset) {
+        const segmentT = (t - stop1.offset) / (stop2.offset - stop1.offset)
+        color = [
+          Math.round(stop1.color[0] + (stop2.color[0] - stop1.color[0]) * segmentT),
+          Math.round(stop1.color[1] + (stop2.color[1] - stop1.color[1]) * segmentT),
+          Math.round(stop1.color[2] + (stop2.color[2] - stop1.color[2]) * segmentT)
+        ]
+        break
+      }
+    }
+
+    // 替换成目标颜色，保留透明度
+    data[i] = color[0]
+    data[i + 1] = color[1]
+    data[i + 2] = color[2]
+    data[i + 3] = Math.min(255, gray) // 透明度和灰度挂钩
   }
 
+  ctx.putImageData(imageData, 0, 0)
+  return canvas
+}
+
+/**
+ * 加载热力图到 Cesium
+ * @param points 经纬度+数值的点数据
+ * @param bounds 热力图的经纬度范围 [minLng, maxLng, minLat, maxLat]
+ */
+const addHeatmapToCesium = async (
+  points: HeatmapPoint[],
+  bounds: [number, number, number, number]
+) => {
+  if (!viewer) return null;
+
+  // 1. 移除旧的热力图
+  if (heatmapPrimitive) {
+    viewer.scene.primitives.remove(heatmapPrimitive);
+    heatmapPrimitive = null;
+  }
+
+  // 2. 生成 Canvas 热力图
+  const heatmapCanvas = createHeatmapCanvas(points, 512, 512);
+
+  // 3. 创建纹理材质
+  const material = Cesium.Material.fromType('Image', {
+    image: heatmapCanvas,
+    repeat: new Cesium.Cartesian2(1, 1)
+  });
+
+  // 4. 创建贴地平面的几何
+  const [minLng, maxLng, minLat, maxLat] = bounds;
+  const rectangle = Cesium.Rectangle.fromDegrees(minLng, minLat, maxLng, maxLat);
+  const geometry = new Cesium.RectangleGeometry({
+    rectangle: rectangle,
+    height: 0,
+    granularity: Cesium.Math.RADIANS_PER_DEGREE * 0.01
+  });
+
+  const instance = new Cesium.GeometryInstance({
+    geometry: geometry
+  });
+
+  // 5. 创建 Primitive（贴地显示）
+  heatmapPrimitive = new Cesium.Primitive({
+    geometryInstances: instance,
+    appearance: new Cesium.MaterialAppearance({
+      material: material,
+      translucent: true
+    }),
+    asynchronous: false
+  });
+
+  // 6. 添加到场景
+  viewer.scene.primitives.add(heatmapPrimitive);
+
+  // 定位
+  viewer.camera.flyTo({
+    destination: Cesium.Cartesian3.fromDegrees(
+      (minLng + maxLng) / 2,
+      (minLat + maxLat) / 2,
+      10000
+    ),
+    orientation: {
+      heading: 0,
+      pitch: Cesium.Math.toRadians(-45),
+      roll: 0
+    },
+    duration: 1.5
+  });
+
+  console.log('✅ 热力图加载成功');
+  
+  // ✅ 关键：返回实例
+  return heatmapPrimitive;
+}
+
+// 加载基础热力图（最终稳定版 → 内部调用 addHeatmapToCesium）
+const loadBiomassHeatmap = async () => {
+  if (!viewer) return;
+  if (heatmapPrimitive) return;
+
   try {
-    // 2. 获取 GeoJSON 数据（如果是后端接口，替换成你的 getBiomassHeatmap 调用）
-    // 如果你是从后端获取：const res = await getBiomassHeatmap(selectedYear.value);
-    // const geoJsonData = res.data;
-    // 如果你是本地文件：
-    const response = await fetch('/src/assets/geo/simple_heatmap.geojson'); // 替换成你的文件路径
+    // 1. 读取 GeoJSON
+    const response = await fetch('/src/assets/geo/simple_heatmap.geojson');
     const geoJsonData = await response.json();
 
-    // 3. 坐标系转换（和帽儿山逻辑一致）
-    if (geoJsonData.crs && geoJsonData.crs.properties.name === 'urn:ogc:def:crs:EPSG::32651') {
+    // 2. 坐标转换
+    if (geoJsonData.crs?.properties?.name === 'urn:ogc:def:crs:EPSG::32651') {
       geoJsonData.features.forEach((feature: any) => {
         if (feature.geometry.type === 'Polygon') {
-          feature.geometry.coordinates = feature.geometry.coordinates.map((ring: number[][]) => 
+          feature.geometry.coordinates = feature.geometry.coordinates.map((ring: number[][]) =>
             ring.map((coord: number[]) => proj4(utm51n, wgs84, coord))
-          );
-        } else if (feature.geometry.type === 'MultiPolygon') {
-          feature.geometry.coordinates = feature.geometry.coordinates.map((polygon: number[][][]) => 
-            polygon.map((ring: number[][]) => 
-              ring.map((coord: number[]) => proj4(utm51n, wgs84, coord))
-            )
           );
         }
       });
       delete geoJsonData.crs;
     }
 
-    // 4. 加载 GeoJSON（基础样式，后续再改渐变）
-    const dataSource = await Cesium.GeoJsonDataSource.load(geoJsonData, {
-      clampToGround: true, // 贴地显示
-      fill: Cesium.Color.WHITE.withAlpha(0.1), // 基础填充色（后续覆盖）
-      stroke: Cesium.Color.BLACK.withAlpha(0.1), // 基础描边色（后续覆盖）
-      strokeWidth: 1
-    });
-
-    // 5. 关键：给数据源命名（和帽儿山的 dataSource.name 逻辑一致）
-    dataSource.name = 'biomass_heatmap';
-    layers.biomassHeatmap = dataSource;
-    viewer.dataSources.add(dataSource);
-
-    // 6. 渐变配色（保留你原来的逻辑）
-    let min_biomass = Infinity;
-    let max_biomass = -Infinity;
+    // 3. 提取热力点
+    const points: HeatmapPoint[] = [];
     geoJsonData.features.forEach((f: any) => {
-      const b = f.properties?.biomass;
-      if (b !== undefined && b > 0) {
-        min_biomass = Math.min(min_biomass, b);
-        max_biomass = Math.max(max_biomass, b);
-      }
-    });
-    if (min_biomass === Infinity) min_biomass = 0;
-    if (max_biomass === Infinity) max_biomass = 100;
+      if (f.geometry.type !== 'Polygon') return;
+      const val = f.properties?.biomass;
+      if (!val || val <= 0) return;
 
-    dataSource.entities.values.forEach((entity: any) => {
-      const biomass = entity.properties?.biomass?._value;
-      if (biomass === undefined || biomass <= min_biomass) return;
-
-      const normalizedValue = (biomass - min_biomass) / (max_biomass - min_biomass);
-      let color: Cesium.Color;
-
-      // 复用你的渐变逻辑
-      if (normalizedValue < 0.2) {
-        const t = normalizedValue / 0.2;
-        color = Cesium.Color.fromHsl(0.45, 0.9, 0.3 + t * 0.2, 0.9);
-      } else if (normalizedValue < 0.4) {
-        const t = (normalizedValue - 0.2) / 0.2;
-        color = Cesium.Color.fromHsl(0.45 - t * 0.25, 0.9, 0.5 + t * 0.1, 0.9);
-      } else if (normalizedValue < 0.5) {
-        const t = (normalizedValue - 0.4) / 0.1;
-        color = Cesium.Color.fromHsl(0.2 - t * 0.1, 0.9, 0.6 + t * 0.1, 0.9);
-      } else {
-        const t = (normalizedValue - 0.5) / 0.5;
-        color = Cesium.Color.fromHsl(0.1 - t * 0.1, 0.95, 0.4 + t * 0.4, 0.9);
-      }
-
-      entity.polygon!.material = color;
-      entity.polygon!.outline = false; // 去掉描边（可选）
+      const coords = f.geometry.coordinates[0];
+      const lons = coords.map((c: number[]) => c[0]);
+      const lats = coords.map((c: number[]) => c[1]);
+      const lng = (Math.min(...lons) + Math.max(...lons)) / 2;
+      const lat = (Math.min(...lats) + Math.max(...lats)) / 2;
+      points.push({ lng, lat, value: val });
     });
 
-    // 7. 定位到热力图区域
-    viewer.flyTo(dataSource, { duration: 2 });
+    if (points.length === 0) throw new Error('无有效数据');
 
-    ElMessage.success({
-      message: `✅ 成功加载${geoJsonData.features.length}个生物量方格`,
-      zIndex: 10001
-    });
-    console.log(`✅ 热力图加载成功，${geoJsonData.features.length}个要素`);
+    // 4. 计算边界
+    const lats = points.map(p => p.lat);
+    const lngs = points.map(p => p.lng);
+    const bounds: [number, number, number, number] = [
+      Math.min(...lngs),
+      Math.max(...lngs),
+      Math.min(...lats),
+      Math.max(...lats)
+    ];
 
+    // ✅ 调用并保存热力图
+    const primitive = await addHeatmapToCesium(points, bounds);
+    heatmapPrimitive = primitive as any;
+
+    ElMessage.success('✅ 3D 热力图加载完成');
   } catch (err) {
-    const errorMsg = (err as Error).message || '加载热力图失败';
-    console.error('❌ 热力图加载失败:', err);
-    ElMessage.error({
-      message: `加载失败：${errorMsg}`,
-      zIndex: 10001
-    });
-    
-    // 兜底清理（和帽儿山逻辑一致）
-    if (layers.biomassHeatmap) {
-      viewer.dataSources.remove(layers.biomassHeatmap);
-      layers.biomassHeatmap = null;
-    }
-    throw new Error('获取生物量热力图失败: ' + errorMsg);
+    console.error(err);
+    ElMessage.error('❌ 加载失败');
   }
 };
 
@@ -470,83 +586,49 @@ const toggleLayer = async (layer: string) => {
 
   switch (layer) {
     case 'biomassHeatmap':
-      if (newState) {
-        // 加载逻辑（简化，和帽儿山一致）
-        if (layers.biomassHeatmap) {
-          viewer.dataSources.remove(layers.biomassHeatmap);
-          layers.biomassHeatmap = null;
-        }
-        // 移除预测热力图（如果有的话）
-        if (layers.predictedBiomassHeatmap) {
-          viewer.imageryLayers.remove(layers.predictedBiomassHeatmap);
-          layers.predictedBiomassHeatmap = null;
-        }
-        if (layers.tifGeoJsonDataSource) {
-          viewer.dataSources.remove(layers.tifGeoJsonDataSource);
-          layers.tifGeoJsonDataSource = null;
-        }
-
-        if (props.predictionTifPath) {
-          await loadPredictedBiomassHeatmap(props.predictionTifPath);
-        } else {
-          await loadBiomassHeatmap();
-        }
-      } else {
-        // 🔥 完全复用帽儿山的销毁逻辑！！！
-        console.log('🔴 开始移除生物量热力图...');
-        // 第一步：移除已知数据源
-        if (layers.biomassHeatmap) {
-          const removed = await viewer.dataSources.remove(layers.biomassHeatmap);
-          if (removed) {
-            console.log('✅ 成功移除生物量热力图图层');
-            layers.biomassHeatmap = null;
-          } else {
-            console.warn('⚠️ 移除热力图图层失败，可能已被移除');
-            layers.biomassHeatmap = null; // 强制清空引用
-          }
-        }
-        // 第二步：兜底遍历所有数据源，移除名字包含 "biomass_heatmap" 的
-        const allDataSources = (viewer.dataSources as any)._dataSources as Cesium.DataSource[];
-        for (const ds of allDataSources) {
-          if (ds.name && ds.name.includes('biomass_heatmap')) {
-            await viewer.dataSources.remove(ds);
-            console.log('✅ 兜底移除热力图图层:', ds.name);
-          }
-        }
-        // 清空其他引用
-        layers.predictedBiomassHeatmap = null;
-        layers.tifGeoJsonDataSource = null;
+    if (newState) {
+      // 打开
+      if (heatmapPrimitive && viewer) {
+        viewer.scene.primitives.remove(heatmapPrimitive as any);
+        heatmapPrimitive = null;
       }
-      break;
-
+      await loadBiomassHeatmap();
+    } else {
+      // 关闭 ✅ 这里现在一定能删掉
+      if (viewer && heatmapPrimitive) {
+        viewer.scene.primitives.remove(heatmapPrimitive as any);
+        heatmapPrimitive = null;
+        console.log("✅ 热力图已关闭");
+      }
+    }
+    break;
 
     case 'mangroveBoundary':
-        if (layerStates.mangroveBoundary) {
-          if (!layers.mangroveBoundary) {
+      if (layerStates.mangroveBoundary) {
+        if (!layers.mangroveBoundary) {
           await loadMaoershanBoundary()
         }
       } else {
-        // 关闭：强制移除并清空
-    if (layers.mangroveBoundary) {
-      const removed = await viewer.dataSources.remove(layers.mangroveBoundary)
-      if (removed) {
-        console.log('✅ 成功移除帽儿山边界图层')
-        layers.mangroveBoundary = null
-      } else {
-        console.warn('⚠️ 移除边界图层失败，可能已被移除')
-        layers.mangroveBoundary = null // 强制清空引用
+        if (layers.mangroveBoundary) {
+          const removed = await viewer.dataSources.remove(layers.mangroveBoundary)
+          if (removed) {
+            console.log('✅ 成功移除帽儿山边界图层')
+            layers.mangroveBoundary = null
+          } else {
+            console.warn('⚠️ 移除边界图层失败，可能已被移除')
+            layers.mangroveBoundary = null
+          }
+        }
+        const allDataSources = (viewer.dataSources as any)._dataSources as Cesium.DataSource[]
+        for (const ds of allDataSources) {
+          if (ds.name && ds.name.includes('maoershan_boundary')) {
+            await viewer.dataSources.remove(ds)
+            console.log('✅ 兜底移除边界图层:', ds.name)
+          }
+        }
       }
-    }
-    // 兜底：遍历所有 dataSources，移除所有名字包含 "maoershan_boundary" 的数据源
-    const allDataSources = (viewer.dataSources as any)._dataSources as Cesium.DataSource[]
-    for (const ds of allDataSources) {
-      if (ds.name && ds.name.includes('maoershan_boundary')) {
-        await viewer.dataSources.remove(ds)
-        console.log('✅ 兜底移除边界图层:', ds.name)
-      }
-    }
-  }
-  break
+      break
+
     case 'samplePoints':
       if (layerStates.samplePoints) {
         await loadSamplePoints()
