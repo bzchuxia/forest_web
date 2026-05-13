@@ -17,8 +17,9 @@
       <div
         v-if="!isMinimized"
         class="ai-chat-container"
-        :style="{ bottom: '30px', right: '30px' }"
+        :style="{ width: chatW + 'px', height: chatH + 'px', bottom: '30px', right: '30px' }"
       >
+      <div class="resize-handle" @mousedown="startResize"></div>
         <div class="chat-header">
           <div class="header-info">
             <span class="status-dot"></span>
@@ -88,6 +89,10 @@ const inputText = ref('')
 const loading = ref(false)
 const chatBody = ref(null)
 const messages = ref([])
+const chatW = ref(380)
+const chatH = ref(550)
+let isResizing = false
+let start = { w: 0, h: 0, x: 0, y: 0 }
 
 let isDragging = false
 const fabPosition = ref({ x: window.innerWidth - 90, y: window.innerHeight - 100 })
@@ -191,6 +196,36 @@ const sendMessage = async () => {
     scrollToBottom()
   }
 }
+
+// 开始缩放（右下角）
+const startResize = (e) => {
+  e.stopPropagation()
+  isResizing = true
+  start.w = chatW.value
+  start.h = chatH.value
+  start.x = e.clientX
+  start.y = e.clientY
+  document.addEventListener('mousemove', onResize)
+  document.addEventListener('mouseup', stopResize)
+}
+
+const onResize = (e) => {
+  if (!isResizing) return
+  // 新宽高 = 初始 + 鼠标偏移
+  let w = start.w - (e.clientX - start.x)
+  let h = start.h - (e.clientY - start.y)
+  // 限制最小/最大，防止拉没或拉太大
+  w = Math.max(320, Math.min(w, 800))
+  h = Math.max(400, Math.min(h, 900))
+  chatW.value = w
+  chatH.value = h
+}
+
+const stopResize = () => {
+  isResizing = false
+  document.removeEventListener('mousemove', onResize)
+  document.removeEventListener('mouseup', stopResize)
+}
 </script>
 
 <style scoped>
@@ -247,8 +282,6 @@ const sendMessage = async () => {
 
 .ai-chat-container {
   position: fixed;
-  width: 380px;
-  height: 550px;
   background: var(--bg-panel);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -406,4 +439,20 @@ const sendMessage = async () => {
 
 .chat-zoom-enter-active, .chat-zoom-leave-active { transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
 .chat-zoom-enter-from, .chat-zoom-leave-to { opacity: 0; transform: scale(0.8) translateY(20px); }
+
+/* 对话窗口右下角缩放柄 */
+.resize-handle {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 18px;
+  height: 18px;
+  background: linear-gradient(135deg, transparent 50%, #00f2ff 50%);
+  cursor: se-resize;
+  z-index: 10;
+  opacity: 0.7;
+}
+.resize-handle:hover {
+  opacity: 1;
+}
 </style>
