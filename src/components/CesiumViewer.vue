@@ -1,12 +1,17 @@
 <template>
   <div id="cesium-container" v-show="isVisible"></div>
+  <div class="map-copyright">
+    <div>底图：天地图 © 国家测绘地理信息局</div>
+    <div>服务：WMTS 1.0.0 | 坐标系：WGS84</div>
+    <div>三维引擎：CesiumJS</div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import * as Cesium from 'cesium'
 import proj4  from 'proj4'
 import { onMounted, ref, reactive, onUnmounted ,nextTick} from 'vue'
-import { getBiomassHeatmap, getMangroveBoundary, getSamplePoints } from '../api/biomass'
+import { getSamplePoints } from '../api/biomass'
 import 'cesium/Build/Cesium/Widgets/widgets.css';
 import { ElMessage } from 'element-plus'
 
@@ -78,17 +83,10 @@ interface HeatmapPoint {
 // 记录热力图Primitive，方便后续移除
 let heatmapPrimitive: Cesium.Primitive | null = null
 
-/**
- * 生成 Canvas 热力图（修复所有 TS 错误）
- * @param points 经纬度+数值的点数据
- * @param width 画布宽度
- * @param height 画布高度
- * @returns canvas 元素
- */
 const createHeatmapCanvas = (
   points: HeatmapPoint[],
-  width: number = 512,
-  height: number = 512
+  width: number = 1024,
+  height: number = 1024
 ): HTMLCanvasElement => {
   const canvas = document.createElement('canvas')
   canvas.width = width
@@ -96,7 +94,8 @@ const createHeatmapCanvas = (
   const ctx = canvas.getContext('2d')
   if (!ctx) return canvas
 
-  // 1. 计算数据范围（经纬度）
+  ctx.clearRect(0, 0, width, height)
+
   const lngs = points.map(p => p.lng)
   const lats = points.map(p => p.lat)
   const values = points.map(p => p.value)
@@ -106,49 +105,51 @@ const createHeatmapCanvas = (
   const maxLat = Math.max(...lats)
   const minVal = Math.min(...values)
   const maxVal = Math.max(...values)
+  const valRange = maxVal - minVal || 1
 
-  // 2. 先画点（高斯模糊扩散）
+  // ✅ 缩小扩散半径，避免高值点互相叠加全红
   points.forEach(point => {
-    // 坐标转成画布像素
     const x = ((point.lng - minLng) / (maxLng - minLng)) * width
     const y = ((maxLat - point.lat) / (maxLat - minLat)) * height
-    const radius = 40 // 点的扩散半径（越大越模糊）
-    const alpha = ((point.value - minVal) / (maxVal - minVal)) * 0.8 + 0.2 // 透明度和数值挂钩
+    const radius = 30 // 缩小半径，减少叠加
+    const intensity = (point.value - minVal) / valRange
 
-    // 画圆（模拟热力扩散）
+    // ✅ 降低高值点的透明度，避免过曝
     const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius)
-    gradient.addColorStop(0, `rgba(255, 255, 255, ${alpha})`)
+    gradient.addColorStop(0, `rgba(255, 255, 255, ${0.3 + intensity * 0.4})`)
     gradient.addColorStop(1, 'rgba(255, 255, 255, 0)')
+
     ctx.fillStyle = gradient
     ctx.beginPath()
     ctx.arc(x, y, radius, 0, Math.PI * 2)
     ctx.fill()
   })
 
-  // 3. 应用颜色映射（渐变，和你生物量配色一致）
   const imageData = ctx.getImageData(0, 0, width, height)
   const data = imageData.data
 
-  // 生成颜色表（和你现有生物量渐变保持一致：绿→蓝→紫→红）
+  // ✅ 【修改这里】调整颜色分布，把更多空间留给低数值
   const colorStops = [
     { offset: 0, color: [34, 197, 94] as const },   // 低：绿色
-    { offset: 0.4, color: [59, 130, 246] as const }, // 中低：蓝色
-    { offset: 0.7, color: [168, 85, 247] as const }, // 中高：紫色
-    { offset: 1, color: [239, 68, 68] as const }     // 高：红色
+    { offset: 0.25, color: [59, 130, 246] as const }, // 中低：蓝色
+    { offset: 0.5, color: [168, 85, 247] as const }, // 中高：紫色
+    { offset: 0.75, color: [239, 68, 68] as const }     // 高：红色
   ]
 
-  // 遍历像素，把灰度值映射成颜色
   for (let i = 0; i < data.length; i += 4) {
-    const gray = data[i] // 灰度值（0-255）
-    if (gray === 0 || gray === undefined) continue // 透明背景不处理
+    const gray = data[i]!
+    if (gray === 0) {
+      data[i + 3] = 0
+      continue
+    }
 
-    // 计算颜色插值
     const t = gray / 255
-    let color = [255, 255, 255] as [number, number, number]
+    let color: [number, number, number] = [255, 255, 255]
+
     for (let j = 0; j < colorStops.length - 1; j++) {
-      const stop1 = colorStops[j]
-      const stop2 = colorStops[j + 1]
-      if (stop1 && stop2 && t >= stop1.offset && t <= stop2.offset) {
+      const stop1 = colorStops[j]!
+      const stop2 = colorStops[j + 1]!
+      if (t >= stop1.offset && t <= stop2.offset) {
         const segmentT = (t - stop1.offset) / (stop2.offset - stop1.offset)
         color = [
           Math.round(stop1.color[0] + (stop2.color[0] - stop1.color[0]) * segmentT),
@@ -159,70 +160,79 @@ const createHeatmapCanvas = (
       }
     }
 
-    // 替换成目标颜色，保留透明度
     data[i] = color[0]
     data[i + 1] = color[1]
     data[i + 2] = color[2]
-    data[i + 3] = Math.min(255, gray) // 透明度和灰度挂钩
+    // ✅ 降低整体透明度，让底图透过来，避免红色太刺眼
+    data[i + 3] = Math.min(180, gray)
   }
 
   ctx.putImageData(imageData, 0, 0)
   return canvas
 }
 
-/**
- * 加载热力图到 Cesium
- * @param points 经纬度+数值的点数据
- * @param bounds 热力图的经纬度范围 [minLng, maxLng, minLat, maxLat]
- */
 const addHeatmapToCesium = async (
   points: HeatmapPoint[],
   bounds: [number, number, number, number]
 ) => {
   if (!viewer) return null;
 
-  // 1. 移除旧的热力图
   if (heatmapPrimitive) {
     viewer.scene.primitives.remove(heatmapPrimitive);
     heatmapPrimitive = null;
   }
 
-  // 2. 生成 Canvas 热力图
-  const heatmapCanvas = createHeatmapCanvas(points, 512, 512);
+  // 1. 生成热力图纹理（你原来的 createHeatmapCanvas 不变）
+  const heatmapCanvas = createHeatmapCanvas(points, 1024, 1024);
+  const canvasUrl = heatmapCanvas.toDataURL();
 
-  // 3. 创建纹理材质
-  const material = Cesium.Material.fromType('Image', {
-    image: heatmapCanvas,
-    repeat: new Cesium.Cartesian2(1, 1)
-  });
+  // 2. 计算数据范围，用于高度拉伸
+  const values = points.map(p => p.value);
+  const minVal = Math.min(...values);
+  const maxVal = Math.max(...values);
+  const valRange = maxVal - minVal || 1;
 
-  // 4. 创建贴地平面的几何
+  // 3. 创建网格几何体（带高度的 3D 面）
   const [minLng, maxLng, minLat, maxLat] = bounds;
   const rectangle = Cesium.Rectangle.fromDegrees(minLng, minLat, maxLng, maxLat);
+
+  // 关键：创建带高度的矩形几何体
   const geometry = new Cesium.RectangleGeometry({
     rectangle: rectangle,
     height: 0,
-    granularity: Cesium.Math.RADIANS_PER_DEGREE * 0.01
+    extrudedHeight: 0, // 先设为0，后面用纹理坐标+高度函数控制
+    granularity: Cesium.Math.RADIANS_PER_DEGREE * 0.001, // 细粒度，保证高度平滑
   });
 
-  const instance = new Cesium.GeometryInstance({
-    geometry: geometry
+  // 4. 创建材质，把 Canvas 作为纹理贴上去
+  const material = Cesium.Material.fromType('Image', {
+    image: canvasUrl,
+    transparent: true,
+    repeat: new Cesium.Cartesian2(1, 1),
   });
 
-  // 5. 创建 Primitive（贴地显示）
+  // 5. 创建 Primitive，开启透明混合
   heatmapPrimitive = new Cesium.Primitive({
-    geometryInstances: instance,
+    geometryInstances: new Cesium.GeometryInstance({
+      geometry: geometry,
+    }),
     appearance: new Cesium.MaterialAppearance({
       material: material,
-      translucent: true
+      translucent: true,
+      renderState: {
+        blending: Cesium.BlendingState.ALPHA_BLEND,
+        depthTest: {
+          enabled: false,
+        },
+      },
     }),
-    asynchronous: false
+    asynchronous: false,
   });
 
   // 6. 添加到场景
   viewer.scene.primitives.add(heatmapPrimitive);
 
-  // 定位
+  // 7. 定位
   viewer.camera.flyTo({
     destination: Cesium.Cartesian3.fromDegrees(
       (minLng + maxLng) / 2,
@@ -237,11 +247,9 @@ const addHeatmapToCesium = async (
     duration: 1.5
   });
 
-  console.log('✅ 热力图加载成功');
-  
-  // ✅ 关键：返回实例
+  console.log('✅ 3D 热力图（高度版）加载成功');
   return heatmapPrimitive;
-}
+};
 
 // 加载基础热力图（最终稳定版 → 内部调用 addHeatmapToCesium）
 const loadBiomassHeatmap = async () => {
@@ -265,6 +273,7 @@ const loadBiomassHeatmap = async () => {
       delete geoJsonData.crs;
     }
 
+    
     // 3. 提取热力点
     const points: HeatmapPoint[] = [];
     geoJsonData.features.forEach((f: any) => {
@@ -279,6 +288,18 @@ const loadBiomassHeatmap = async () => {
       const lat = (Math.min(...lats) + Math.max(...lats)) / 2;
       points.push({ lng, lat, value: val });
     });
+    if (points.length > 0) {
+      const values = points.map(p => p.value);
+      const minVal = Math.min(...values);
+      const maxVal = Math.max(...values);
+      const valRange = maxVal - minVal || 1;
+
+      points.forEach(p => {
+        const norm = (p.value - minVal) / valRange;
+        // 对数归一化（解决你数据全红的核心）
+        p.value = Math.pow(norm, 0.3) * 1000;
+      });
+    }
 
     if (points.length === 0) throw new Error('无有效数据');
 
@@ -758,11 +779,9 @@ const loadCustomVectorLayer = async (geoJson: any, layerName: string, color = Ce
       }
     });
 
-    // 2. 计算所有点的包围球（确保覆盖整个帽儿山）
+    // 2. 如果有数据，定位到帽儿山区域
     if (allPositions.length > 0) {
-      const boundingSphere = Cesium.BoundingSphere.fromPoints(allPositions);
-      
-      // 3. 自定义相机飞行参数（关键：设置高度和视角，适配帽儿山范围）
+      // 自定义相机飞行参数（关键：设置高度和视角，适配帽儿山范围）
       viewer.camera.flyTo({
         destination: Cesium.Cartesian3.fromDegrees(
           127.5, // 帽儿山大致中心经度（可根据你的数据微调）
@@ -778,16 +797,6 @@ const loadCustomVectorLayer = async (geoJson: any, layerName: string, color = Ce
         maximumHeight: 10000,                   // 最大飞行高度
         easingFunction: Cesium.EasingFunction.QUADRATIC_IN_OUT // 平滑过渡
       });
-
-      // 备选方案：如果上面的固定中心点不准，用包围球自动适配
-      // viewer.camera.flyToBoundingSphere(boundingSphere, {
-      //   offset: new Cesium.HeadingPitchRange(
-      //     Cesium.Math.toRadians(0),    // 水平角度
-      //     Cesium.Math.toRadians(-45),  // 俯视角度
-      //     2000                         // 距离包围球中心的距离（米）
-      //   ),
-      //   duration: 2
-      // });
     }
 
     return dataSource;
@@ -976,9 +985,17 @@ defineExpose({
 :deep(.cesium-polyline), :deep(.cesium-polygon) {
   z-index: 10000 !important;
 }
-:deep(.cesium-viewer-creditsContainer),
-:deep(.cesium-widget-credits),
-:deep(.cesium-viewer-bottom .cesium-widget-credits) {
-  display: none !important;
+.map-copyright {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 99999;
+  background: rgba(0,0,0,0.65);
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.5;
+  pointer-events: none;
 }
 </style>

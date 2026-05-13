@@ -256,6 +256,12 @@
       />
     </div>
 
+    <div class="map-copyright">
+     <div>底图：天地图 © 国家测绘地理信息局</div>
+     <div>服务：WMTS 1.0.0 | 坐标系：WGS84</div>
+     <div>三维引擎：CesiumJS</div>
+    </div>
+
   </div>
 </template>
 
@@ -1712,5 +1718,19 @@ defineExpose({
 .run-selected-btn:hover {
   filter: brightness(1.1);
   transform: translateY(-1px);
+}
+
+.map-copyright {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 99999;
+  background: rgba(0,0,0,0.65);
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.5;
+  pointer-events: none;
 }
 </style>
