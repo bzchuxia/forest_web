@@ -10,6 +10,7 @@ from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.agents import AgentExecutor, create_tool_calling_agent
 from langchain_core.tools import tool
+from langchain_core.callbacks import BaseCallbackHandler
 
 # --- Spark 引擎 ---
 try:
@@ -70,20 +71,32 @@ def query_maoershan_biomass(sql_query: str) -> str:
         if not spark_engine:
             return "Spark 服务未连接"
 
-        # 自动限制最多 50 条，防止数据量爆炸
+        # --------------------------
+        # 👇 新增：读取HDFS results下的所有数据
+        # --------------------------
+        # 1. 读取/forest/results/下所有批次的数据（假设是Parquet格式，可按需修改）
+        df = spark_engine.read.format("parquet").option("recursiveFileLookup", "true").load("hdfs:///forest/results/")
+        
+        # 2. 注册成临时表，表名还是你原来的biomass_data，Agent的提示词完全不用改
+        df.createOrReplaceTempView("biomass_data")
+
+        # --------------------------
+        # 👇 以下是你原来的逻辑，完全保留
+        # --------------------------
         sql_query = sql_query.strip().rstrip(";")
         if "limit" not in sql_query.lower():
             sql_query += " LIMIT 50"
 
         print(f"[帽儿山SQL] {sql_query}")
-        result = spark_engine.query_data(sql_query)
+        result = spark_engine.sql(sql_query).collect()
 
         if isinstance(result, list):
             result = result[:50]
 
-        return json.dumps(result, ensure_ascii=False, indent=2)
+        return json.dumps([row.asDict() for row in result], ensure_ascii=False, indent=2)
 
-    except Exception:
+    except Exception as e:
+        print(f"[数据查询错误] {e}")
         return "数据查询失败"
 
 tools = [query_maoershan_biomass]
@@ -95,6 +108,7 @@ llm = ChatOpenAI(
     openai_api_base="https://dashscope.aliyuncs.com/compatible-mode/v1",
     temperature=0.1,
     streaming=True,
+    callbacks=[],
 )
 
 # ============================
@@ -134,24 +148,28 @@ prompt = ChatPromptTemplate.from_messages([
 agent = create_tool_calling_agent(llm, tools, prompt)
 agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=False)
 
-# --- 流式输出（干净美观版）---
-def get_ai_response(user_input: str, history: list = []) -> Generator[str, None, None]:
+# 流式输出
+def get_ai_response(user_input: str,history: list = []) -> Generator[str,None,None]:
     if not user_input.strip():
-        yield "👋 你好！我是帽儿山生物量数字孪生平台智能助手，有什么可以帮您？"
+        yield "您好，我是帽儿山生物量数字孪生平台智能助手，有什么可以帮您？"
         return
+    
+    class TokenStreamHandler(BaseCallbackHandler):
+        def __init__(self,quene):
+            self.quene = quene
+        def on_llm_new_token(self,token:str,**kwargs):
+            self.quene.append(token)
 
     try:
-        input_dict = {
-            "input": user_input,
-            "chat_history": history
-        }
+        input_data = {"input":user_input,"chat_history":history}
+        token_quene = []
+        callback = TokenStreamHandler(token_quene)
 
-        for event in agent_executor.stream(input_dict):
-            if "actions" in event:
-                yield "🔍 正在查询帽儿山数据...\n\n"
+        for evt in agent_executor.stream(input_data, config={"callbacks":[callback]}):
+            if "action" in evt:
+                yield "正在查询帽儿山数据..."
 
-            if "output" in event:
-                yield event["output"]
-
+            while token_quene:
+                yield token_quene.pop(0)
     except Exception:
-        yield "⚠️ 智能助手暂时无法响应，请稍后再试。"
+        yield "暂时无法响应，请稍后再试。"
