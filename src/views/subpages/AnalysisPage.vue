@@ -203,11 +203,11 @@
                 <span class="metric-label">最优模型</span>
                 <span class="metric-value highlight">{{ taskStore.taskResult?.best_model || '-' }}</span>
               </div>
-              <div class="metric-divider"></div>
+              <!-- <div class="metric-divider"></div>
               <div class="metric-row">
                 <span class="metric-label">最高 R² 精度</span>
                 <span class="metric-value">{{ bestR2Value }}</span>
-              </div>
+              </div> -->
             </div>
 
             <!-- 操作按钮 -->
