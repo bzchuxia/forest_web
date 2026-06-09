@@ -220,6 +220,34 @@ def run_vlm_comparison_analysis(
 
     logger.info("✅ 时序对比分析完成，结果已保存至HDFS")
     return result
+def run_vlm_biomass_estimation(
+    image_path: str,
+    output_json_path: str,
+    prompt: Optional[str] = None,
+    model_name: Optional[str] = None
+):
+    """
+    前端调用的真实 VLM 生物量估算接口
+    输入：图片路径
+    输出：AI 分析后的 JSON 结果
+    """
+    engine = VLMBiomassEngine()
+    
+    # 执行预测
+    result = engine.predict_single_image(image_path, prompt)
+
+    # 保存结果到文件
+    with open(output_json_path, "w", encoding="utf-8") as f:
+        json.dump(result, f, ensure_ascii=False, indent=2)
+
+    # 返回给前端
+    return {
+        "status": "success",
+        "image_path": image_path,
+        "output_path": output_json_path,
+        "result": result
+    }
+
 
 # ===================== 测试 =====================
 if __name__ == "__main__":

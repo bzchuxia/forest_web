@@ -194,7 +194,6 @@ const seasonTrendRef = ref<HTMLDivElement | null>(null)
 const futurePredictRef = ref<HTMLDivElement | null>(null)
 const envFactorRef = ref<HTMLDivElement | null>(null)
 const simulateRef = ref<HTMLDivElement | null>(null)
-const patrolTrackRef = ref<HTMLDivElement | null>(null)
 
 const timers = ref<NodeJS.Timeout[]>([])
 const clearAllTimers = () => {
@@ -510,25 +509,66 @@ const exportPDF = async () => {
     alert('暂无数据');
     return;
   }
+
+  // 加载提示
   const loading = document.createElement('div');
-  loading.innerText = '正在生成报告...';
+  loading.innerText = '正在请求 VLM 分析并生成报告...';
   loading.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#001432;color:#fff;padding:20px;border-radius:8px;z-index:99999;';
   document.body.appendChild(loading);
+
   try {
-    const dashboard = document.querySelector('.data-dashboard') as HTMLElement;
-    const canvas = await html2canvas(dashboard, { useCORS: true, scale: 2, backgroundColor: '#001432' });
-    const pdf = new jsPDF('landscape', 'mm', 'a4');
-    const imgData = canvas.toDataURL('image/png');
-    const imgWidth = 280;
-    const imgHeight = canvas.height * imgWidth / canvas.width;
-    pdf.addImage(imgData, 'PNG', 5, 10, imgWidth, imgHeight);
-    pdf.save(`帽儿山生物量大屏_${new Date().toLocaleDateString()}.pdf`);
+    // ==============================================
+    // 🔥 1. 调用后端 VLM 分析接口（替换成你的真实接口）
+    // ==============================================
+    const imagePath = "D:/desktop/forest_web/forest_web_backend/data/heatmap/20260608_081508/XGBoost/Biomass_Prediction_20260608_081508_渲染图.png"; // 从大屏数据里拿图片路径
+    const vlmResponse = await fetch("/api/biomass/vlm/estimate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        image_path: imagePath,
+        prompt: "分析森林生物",
+        model_name: "Qwen/Qwen2-VL-7B-Instruct"
+      })
+    });
+
+    const vlmResult = await vlmResponse.json();
+    console.log("✅ VLM 返回结果：", vlmResult);
+
+    // ==============================================
+    // 🔥 2. 使用 VLM 结果生成 PDF（不再截图！）
+    // ==============================================
+    const pdf = new jsPDF('portrait', 'mm', 'a4');
+    
+    // 设置字体
+    pdf.setFontSize(18);
+    pdf.text('帽儿山森林生物量 VLM 智能分析报告', 20, 20);
+
+    pdf.setFontSize(14);
+    pdf.text(`分析时间：${new Date().toLocaleString()}`, 20, 30);
+
+    pdf.setFontSize(12);
+    pdf.text(`📊 估算生物量 (AGB)：${vlmResult.data.result.agb_estimate} t/ha`, 20, 45);
+    pdf.text(`🌿 植被覆盖度：${vlmResult.data.result.vegetation_coverage}`, 20, 55);
+    pdf.text(`🌲 健康状态：${vlmResult.data.result.health_status}`, 20, 65);
+    pdf.text(`📝 分析描述：${vlmResult.data.result.description}`, 20, 75);
+    pdf.text(`🎯 置信度：${(vlmResult.data.result.confidence * 100).toFixed(2)}%`, 20, 85);
+
+    // 建议列表
+    pdf.text('💡 林业管理建议：', 20, 100);
+    vlmResult.data.result.suggestions?.forEach((item: string, index: number) => {
+      pdf.text(`- ${item}`, 25, 110 + index * 8);
+    });
+
+    // 保存
+    pdf.save(`帽儿山生物量VLM报告_${new Date().toLocaleDateString()}.pdf`);
+
   } catch (e) {
-    alert('导出失败');
+    console.error(e);
+    alert('导出失败：' + e);
   } finally {
     loading.remove();
   }
-}
+};
 
 watch(viewMode, (val) => {
   if (!isShowDashboard.value) return;
