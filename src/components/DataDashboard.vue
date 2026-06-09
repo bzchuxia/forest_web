@@ -149,7 +149,6 @@ import * as echarts from 'echarts'
 import type { BiomassResult } from '../store/biomassStore'
 import DashboardCesium from './Dashboard_Cesium.vue'
 import { jsPDF } from 'jspdf'
-import html2canvas from 'html2canvas'
 
 const props = defineProps<{
   biomassData?: (BiomassResult & {

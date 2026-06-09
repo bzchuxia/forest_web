@@ -40,3 +40,6 @@ build/
 *.jar
 *.so
 *.dylib
+
+# 数据
+forest_web_backend/data/
