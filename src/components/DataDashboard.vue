@@ -41,11 +41,11 @@
             <img v-else :src="predictHeatmapUrl" class="heatmap-img" @error="handleImageError" />
           </div>
         </div>
-        <!-- <div class="chart-card season-card">
+        <div class="chart-card season-card">
           <h3>季节生长速率对比</h3>
           <div ref="seasonTrendRef" style="width:100%;height:200px"></div>
-        </div> -->
-        <div class="metrics-section">
+        </div>
+        <!-- <div class="metrics-section">
           <h3>模型评价指标</h3>
           <div v-if="!biomassData" class="no-data-placeholder"><i class="fas fa-table"></i><p>暂无数据</p></div>
           <div class="metrics-table" v-else>
@@ -59,7 +59,7 @@
               </tr></tbody>
             </table>
           </div>
-        </div>
+        </div> -->
       </div>
 
       <!-- 中间地图区域（实景地图） -->
@@ -520,7 +520,8 @@ const exportPDF = async () => {
     // 🔥 1. 调用后端 VLM 分析接口（替换成你的真实接口）
     // ==============================================
     const imagePath = "D:/desktop/forest_web/forest_web_backend/data/heatmap/20260608_081508/XGBoost/Biomass_Prediction_20260608_081508_渲染图.png"; // 从大屏数据里拿图片路径
-    const vlmResponse = await fetch("/api/biomass/vlm/estimate", {
+    const API_BASE = "http://127.0.0.1:8000";
+    const vlmResponse = await fetch(`${API_BASE}/api/biomass/vlm/estimate`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -531,7 +532,7 @@ const exportPDF = async () => {
     });
 
     const vlmResult = await vlmResponse.json();
-    console.log("✅ VLM 返回结果：", vlmResult);
+    console.log("VLM 返回结果：", vlmResult);
 
     // ==============================================
     // 🔥 2. 使用 VLM 结果生成 PDF（不再截图！）
@@ -546,14 +547,14 @@ const exportPDF = async () => {
     pdf.text(`分析时间：${new Date().toLocaleString()}`, 20, 30);
 
     pdf.setFontSize(12);
-    pdf.text(`📊 估算生物量 (AGB)：${vlmResult.data.result.agb_estimate} t/ha`, 20, 45);
-    pdf.text(`🌿 植被覆盖度：${vlmResult.data.result.vegetation_coverage}`, 20, 55);
-    pdf.text(`🌲 健康状态：${vlmResult.data.result.health_status}`, 20, 65);
-    pdf.text(`📝 分析描述：${vlmResult.data.result.description}`, 20, 75);
-    pdf.text(`🎯 置信度：${(vlmResult.data.result.confidence * 100).toFixed(2)}%`, 20, 85);
+    pdf.text(`估算生物量 (AGB)：${vlmResult.data.result.agb_estimate} t/ha`, 20, 45);
+    pdf.text(`植被覆盖度：${vlmResult.data.result.vegetation_coverage}`, 20, 55);
+    pdf.text(`健康状态：${vlmResult.data.result.health_status}`, 20, 65);
+    pdf.text(`分析描述：${vlmResult.data.result.description}`, 20, 75);
+    pdf.text(`置信度：${(vlmResult.data.result.confidence * 100).toFixed(2)}%`, 20, 85);
 
     // 建议列表
-    pdf.text('💡 林业管理建议：', 20, 100);
+    pdf.text('林业管理建议：', 20, 100);
     vlmResult.data.result.suggestions?.forEach((item: string, index: number) => {
       pdf.text(`- ${item}`, 25, 110 + index * 8);
     });

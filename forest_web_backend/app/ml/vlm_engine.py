@@ -247,6 +247,38 @@ def run_vlm_biomass_estimation(
         "output_path": output_json_path,
         "result": result
     }
+def predict_single_image(self, image_path: str, prompt: Optional[str] = None):
+    self.load_model()
+    # 读取单张图片
+    img = self._resize(self._preprocess_image(image_path))
+
+    default_prompt = """
+你是林业遥感专家，请根据这张卫星影像估算森林地上生物量AGB，只输出JSON：
+{
+    "AGB": 数值,
+    "vegetation_health": "良好/一般/较差",
+    "analysis": "简短分析"
+}
+"""
+    user_prompt = prompt or default_prompt
+
+    messages = [{
+        "role": "user",
+        "content": [
+            {"type": "image", "image": img},
+            {"type": "text", "text": user_prompt}
+        ]
+    }]
+
+    text = self.processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+    img_inputs, _ = process_vision_info(messages)
+    inputs = self.processor(text=[text], images=img_inputs, padding=True, return_tensors="pt").to(self.device)
+
+    with torch.no_grad():
+        out = self.model.generate(**inputs, max_new_tokens=1024)
+
+    out_text = self.processor.batch_decode(out[:, inputs.input_ids.shape[1]:], skip_special_tokens=True)[0]
+    return self._parse_json(out_text)
 
 
 # ===================== 测试 =====================
